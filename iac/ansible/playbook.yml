@@ -1,0 +1,40 @@
+---
+- name: Configure local environment for DevMid
+  hosts: localhost
+  become: yes  # Run tasks with sudo
+  tasks:
+    - name: Install Python and Node.js
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop:
+        - python3
+        - nodejs
+        - npm
+
+    - name: Ensure Node.js version is correct (optional)
+      shell: |
+        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Create project directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /opt/devmid4
+        - /opt/devmid4/logs
+
+    - name: Copy project files to /opt/devmid4
+      copy:
+        src: "{{ playbook_dir }}/../../"  # Path to your repo files
+        dest: /opt/devmid4
+        remote_src: no  # Copy from local machine
+
+    - name: Install npm dependencies
+      npm:
+        path: /opt/devmid4
+        state: present
