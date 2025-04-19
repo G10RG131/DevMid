@@ -2,19 +2,27 @@ name: CI
 
 on:
   push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
-          node-version: '16'
-      - run: npm install
-      - run: npm test
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set executable permissions for Jest
+        run: chmod +x node_modules/.bin/jest
+
+      - name: Run tests
+        run: npx jest
