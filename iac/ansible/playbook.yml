@@ -25,16 +25,16 @@
         state: directory
         mode: '0755'
       loop:
-        - /opt/devmid4
-        - /opt/devmid4/logs
+        - /opt/devmid
+        - /opt/devmid/logs
 
-    - name: Copy project files to /opt/devmid4
+    - name: Copy project files to /opt/devmid
       copy:
         src: "{{ playbook_dir }}/../../"  # Path to your repo files
-        dest: /opt/devmid4
+        dest: /opt/devmid
         remote_src: no  # Copy from local machine
 
     - name: Install npm dependencies
       npm:
-        path: /opt/devmid4
+        path: /opt/devmid
         state: present
