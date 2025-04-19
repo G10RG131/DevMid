@@ -1,5 +1,5 @@
-const request = require('supertest');
-const app = require('../app');
+import request from 'supertest';
+import app from '../app';
 
 describe('Task Routes', () => {
   it('should add a task and access it by ID', async () => {
