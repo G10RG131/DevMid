@@ -31,15 +31,3 @@ The project uses Ansible to configure the local development environment. The pla
 - [`ansible.cfg`](ansible-local-env/ansible.cfg): Configuration for Ansible.
 - [`setup.yml`](ansible-local-env/playbooks/setup.yml): Playbook to configure the environment.
 
-## Screenshots
-### Deployment
-![Deployment Screenshot](path/to/deployment-screenshot.png)
-
-### CI/CD Pipeline
-![Pipeline Screenshot](path/to/pipeline-screenshot.png)
-
-### Application
-![App Screenshot](path/to/app-screenshot.png)
-
-## Workflow Diagram
-Below is a simple diagram of the workflow:
