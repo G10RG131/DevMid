@@ -1,16 +1,22 @@
----
-- name: Install Python
-  apt:
-    name: python3
-    state: present
-  become: yes
+- name: Check if Python is installed
+  command: python3 --version
+  register: python_check
+  ignore_errors: yes
 
-- name: Install Node.js
-  apt:
-    name: nodejs
-    state: present
-  become: yes
+- name: Suggest installing Python if not found
+  debug:
+    msg: "Python is not installed. Please install it using 'sudo apt install python3'."
+  when: python_check.rc != 0
 
+- name: Check if Node.js is installed
+  command: node --version
+  register: node_check
+  ignore_errors: yes
+
+- name: Suggest installing Node.js if not found
+  debug:
+    msg: "Node.js is not installed. Please install it using 'sudo apt install nodejs'."
+  when: node_check.rc != 0
 - name: Create project directory
   file:
     path: /home/{{ ansible_user }}/Desktop/Ansilable
