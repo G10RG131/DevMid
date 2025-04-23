@@ -3,28 +3,60 @@
   register: python_check
   ignore_errors: yes
 
-- name: Suggest installing Python if not found
-  debug:
-    msg: "Python is not installed. Please install it using 'sudo apt install python3'."
-  when: python_check.rc != 0
-
 - name: Check if Node.js is installed
   command: node --version
   register: node_check
   ignore_errors: yes
 
-- name: Suggest installing Node.js if not found
-  debug:
-    msg: "Node.js is not installed. Please install it using 'sudo apt install nodejs'."
-  when: node_check.rc != 0
-- name: Create project directory
-  file:
-    path: /home/{{ ansible_user }}/Desktop/Ansilable
-    state: directory
-    mode: '0755'
+- name: Check which folder the symlink points to
+  command: readlink -f /home/{{ ansible_user }}/deployment/production
+  register: symlink_target
 
-- name: Clone project repository
+- name: Debug the symlink target
+  debug:
+    msg: "The symlink points to: {{ symlink_target.stdout }}"
+
+- name: Set a variable based on the symlink target
+  set_fact:
+    active_environment: "{{ 'blue' if 'blue' in symlink_target.stdout else 'green' }}"
+    inactive_environment: "{{ 'green' if 'blue' in symlink_target.stdout else 'blue' }}"
+
+- name: Clone repository to the inactive environment
   git:
     repo: 'https://github.com/G10RG131/DevMid.git'
-    dest: /home/{{ ansible_user }}/Desktop/Ansilable
-    version: main 
+    dest: "/home/{{ ansible_user }}/deployment/{{ inactive_environment }}"
+    version: main
+    force: yes
+
+- name: Remove test directory from the environment
+  command: rm -rf /home/{{ ansible_user }}/deployment/{{ inactive_environment }}/tests
+
+- name: Remove ansible-local-env directory from the environment
+  command: rm -rf /home/{{ ansible_user }}/deployment/{{ inactive_environment }}/ansible-local-env
+
+- name: Copy multiple scripts to the target machine
+
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0755'
+  loop:
+    - { src: files/health_check.sh, dest: "/home/{{ ansible_user }}/deployment/health_check.sh" }
+    - { src: files/deploy.sh, dest: "/home/{{ ansible_user }}/deployment/deploy.sh" }
+    - { src: files/rollback.sh, dest: "/home/{{ ansible_user }}/deployment/rollback.sh" }
+    - { src: files/start.sh, dest: "/home/{{ ansible_user }}/deployment/start.sh" }
+
+- name: Run the start_app script
+  command: /home/{{ ansible_user }}/deployment/start.sh
+
+- name: Ensure the health check log file exists
+  file:
+    path: /home/{{ ansible_user }}/deployment/app_health.log
+    state: touch
+    mode: '0644'
+
+- name: Add a cron job to run the health check script every minute
+  cron:
+    name: "Health check for the app"
+    minute: "*/1"
+    job: "/home/{{ ansible_user }}/deployment/health_check.sh"
