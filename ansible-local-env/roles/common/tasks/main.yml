@@ -1,0 +1,24 @@
+---
+- name: Install Python
+  apt:
+    name: python3
+    state: present
+  become: yes
+
+- name: Install Node.js
+  apt:
+    name: nodejs
+    state: present
+  become: yes
+
+- name: Create project directory
+  file:
+    path: /home/{{ ansible_user }}/Desktop/Ansilable
+    state: directory
+    mode: '0755'
+
+- name: Clone project repository
+  git:
+    repo: 'https://github.com/G10RG131/DevMid.git'
+    dest: /home/{{ ansible_user }}/Desktop/Ansilable
+    version: main 

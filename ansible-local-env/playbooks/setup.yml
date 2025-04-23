@@ -1,0 +1,6 @@
+- name: Configure Local Environment
+  hosts: local
+  vars:
+    ansible_user: "{{ lookup('env', 'USER') }}"
+  roles:
+    - common

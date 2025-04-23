@@ -9,7 +9,31 @@
     <input type="text" name="title" placeholder="Enter task" required>
     <button type="submit">Add Task</button>
   </form>
-  <p>Try visiting <code>/tasks/1</code> after adding a task!</p>
-  <h2>Tasks will be shown here soon!</h2>
+  
+  <h2>Tasks:</h2>
+  <ul id="task-list">
+    <!-- Tasks will be dynamically loaded here -->
+  </ul>
+
+  <script>
+    // Fetch tasks from the server and populate the task list
+    async function loadTasks() {
+      const response = await fetch('/tasks/api/tasks');
+      const tasks = await response.json();
+      const taskList = document.getElementById('task-list');
+      taskList.innerHTML = ''; // Clear existing tasks
+      tasks.forEach(task => {
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = `/tasks/${task.id}`; // Link to the task details page
+        link.textContent = task.title;
+        li.appendChild(link);
+        taskList.appendChild(li);
+      });
+    }
+
+    // Load tasks when the page loads
+    window.onload = loadTasks;
+  </script>
 </body>
 </html>
